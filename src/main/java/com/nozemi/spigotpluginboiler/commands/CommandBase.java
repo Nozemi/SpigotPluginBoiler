@@ -1,12 +1,15 @@
 package com.nozemi.spigotpluginboiler.commands;
 
 import com.nozemi.spigotpluginboiler.Plugin;
+import com.nozemi.spigotpluginboiler.builders.MessageBuilder;
+import com.nozemi.spigotpluginboiler.commands.annotations.Permission;
 import com.nozemi.spigotpluginboiler.commands.annotations.PluginCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -17,6 +20,9 @@ public abstract class CommandBase implements CommandExecutor {
     private String description;
     private String[] aliases;
     private String usage;
+
+    private String permission;
+    private String permissionMessage;
 
     public CommandBase() {
         processAnnotations();
@@ -30,6 +36,12 @@ public abstract class CommandBase implements CommandExecutor {
             this.aliases = annotation.aliases();
             this.usage = annotation.usage();
         }
+
+        if(getClass().isAnnotationPresent(Permission.class)) {
+            Permission annotation = getClass().getAnnotation(Permission.class);
+            this.permission = annotation.name();
+            this.permissionMessage = annotation.message();
+        }
     }
 
     public void register() {
@@ -38,8 +50,14 @@ public abstract class CommandBase implements CommandExecutor {
 
             @Override
             public boolean execute(CommandSender sender, String commandLabel, String[] args) {
-                // TODO: Handle permissions.
-                return onCommand(sender, this, commandLabel, args);
+                if(sender.hasPermission(permission)) {
+                    return onCommand(sender, this, commandLabel, args);
+                } else {
+                    new MessageBuilder(permissionMessage)
+                        .setSender(sender)
+                        .send();
+                    return true;
+                }
             }
         }));
     }
@@ -87,5 +105,9 @@ public abstract class CommandBase implements CommandExecutor {
 
     public String[] getAliases() {
         return aliases;
+    }
+
+    public String getPermission() {
+        return permission;
     }
 }

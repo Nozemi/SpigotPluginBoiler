@@ -3,14 +3,13 @@ package com.nozemi.spigotpluginboiler.commands.impl;
 import com.nozemi.spigotpluginboiler.Initializer;
 import com.nozemi.spigotpluginboiler.Plugin;
 import com.nozemi.spigotpluginboiler.builders.MessageBuilder;
+import com.nozemi.spigotpluginboiler.commands.CommandBase;
 import com.nozemi.spigotpluginboiler.commands.CommandsProvider;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
-
-import java.util.Optional;
 
 public class HelpCommand implements CommandExecutor, Initializer {
 
@@ -30,36 +29,45 @@ public class HelpCommand implements CommandExecutor, Initializer {
 
         if(commandsProvider == null) {
             new MessageBuilder("&cSomething went wrong while fetching the plugin's commands.")
-                    .setPlayer((Player) sender)
+                    .setSender(sender)
                     .send();
             return true;
         }
 
-        if(commandsProvider.getCommands().size() < 1) {
+        if(commandsProvider.getCommands()
+                .stream()
+                .filter(command -> sender.hasPermission(command.getPermission()))
+                .count() < 1
+        ) {
             new MessageBuilder("&6There are no commands for this plugin.")
-                    .setPlayer((Player) sender)
+                    .setSender(sender)
                     .send();
             return true;
         }
 
         new MessageBuilder("&aHere is a list of all the available commands:")
-                .setPlayer((Player) sender)
+                .setSender(sender)
                 .send();
 
-        commandsProvider.getCommands().forEach(command -> {
-            if(command.getUsage().length() > 0) {
-                new MessageBuilder(command.getUsage())
-                    .setPlayer((Player) sender)
-                    .noPrefix()
-                    .send();
-            } else {
-                new MessageBuilder("/&9" + command.getName() + "&f - " + command.getDescription())
-                    .setPlayer((Player) sender)
-                    .noPrefix()
-                    .send();
-            }
-        });
+        commandsProvider.getCommands()
+                .stream()
+                .filter(command -> sender.hasPermission(command.getPermission()))
+                .forEach(command -> sendCommandHelpLine(command, sender));
 
         return true;
+    }
+
+    private void sendCommandHelpLine(CommandBase command, CommandSender sender) {
+        if(command.getUsage().length() > 0) {
+            new MessageBuilder(command.getUsage())
+                    .setSender(sender)
+                    .noPrefix()
+                    .send();
+        } else {
+            new MessageBuilder("/&9" + command.getName() + "&f - " + command.getDescription())
+                    .setSender(sender)
+                    .noPrefix()
+                    .send();
+        }
     }
 }

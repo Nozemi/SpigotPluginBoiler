@@ -3,10 +3,11 @@ package com.nozemi.spigotpluginboiler.builders;
 import com.nozemi.spigotpluginboiler.Plugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class MessageBuilder {
-    private Player player;
+    private CommandSender sender;
     private String customPrefix = null;
     private boolean noPrefix = false;
     private String message;
@@ -15,8 +16,8 @@ public class MessageBuilder {
         this.message = message;
     }
 
-    public MessageBuilder setPlayer(Player player) {
-        this.player = player;
+    public MessageBuilder setSender(CommandSender sender) {
+        this.sender = sender;
         return this;
     }
 
@@ -41,8 +42,8 @@ public class MessageBuilder {
     }
 
     public void send() {
-        if(player != null) {
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', build()));
+        if(sender != null) {
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', build()));
         } else {
             Bukkit.getConsoleSender().sendMessage("Couldn't send the message because a player was not defined.");
         }

@@ -21,8 +21,8 @@ public class DummyCommand extends CommandBase {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        new MessageBuilder("&9Dummy command that does nothing.")
-            .setPlayer((Player) sender)
+        new MessageBuilder("&9You executed the dummy command.")
+            .setSender(sender)
             .setCustomPrefix("&2DummyCommand")
             .send();
         return true;
