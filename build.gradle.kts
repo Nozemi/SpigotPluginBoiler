@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    testCompile("junit:junit:4.12")
+    testCompileOnly("junit:junit:4.12")
 
     implementation("com.fasterxml.jackson.core:jackson-databind:2.11.0.rc1")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.11.0.rc1")
